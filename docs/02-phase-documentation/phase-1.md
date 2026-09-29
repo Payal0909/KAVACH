@@ -25,13 +25,16 @@
 
 The primary objective of Phase 1 is to construct and verify the foundational runtime skeleton for KAVACH. 
 
+Guided by the principle:
+> **"Simple enough to build reliably in one day, structured enough to support Phases 2–5 without rework."**
+
 Specifically, Phase 1 accomplishes the following measurable goals:
 1. **Unified Workspace Structure:** Establish a clean, decoupled monorepo layout separating `backend/`, `frontend/`, `docs/`, and container infrastructure.
 2. **Backend Foundation:** Deploy an asynchronous FastAPI application with modular configuration management, Pydantic v2 validation, centralized error handling, structured logging, and an operational `/health` probe.
-3. **Database Connectivity:** Establish a thread-safe SQLite connection pool and lightweight schema initialization mechanism capable of zero-downtime evolution into subsequent audit and trace storage.
+3. **Database Foundation:** Establish a deterministic SQLite lifecycle using Python's standard `sqlite3` module with WAL (Write-Ahead Logging) mode enabled, supporting straightforward initialization, testability, and a clean future migration path.
 4. **Frontend Foundation:** Initialize a modern React 18 + Vite + TypeScript + Tailwind CSS application featuring the primary KAVACH layout, branding, unified navigation shell across all 5 planned product screens, and a functioning Security Gateway entry view.
 5. **API & Contract Foundation:** Deliver a baseline API client and a foundation endpoint (`/api/v1/gateway/scan-preview`) demonstrating end-to-end client-server validation without falsely claiming threat detection.
-6. **Containerization & Developer Workflow:** Deliver multi-stage Dockerfiles and a root `docker-compose.yml` enabling deterministic local startup of both services with live reload.
+6. **Containerization & Deployment Foundation:** Deliver multi-stage Dockerfiles (FastAPI backend + Nginx-served static React frontend) and a root `docker-compose.yml` enabling deterministic containerized startup.
 
 At the conclusion of Phase 1, KAVACH will be fully operational as a distributed client-server application ready to receive the Phase 2 Security Engine without architectural rework.
 
@@ -56,25 +59,25 @@ The following components and capabilities are strictly within the scope of Phase
 * **Structured Logging:** Standardized JSON/console logger outputting request IDs, timestamps, HTTP status codes, and execution latencies without logging sensitive request bodies or secrets.
 
 ### 2.3 Database Foundation (SQLite)
-* Zero-dependency embedded SQLite setup via Python's standard `sqlite3` or SQLAlchemy core engine.
-* Safe, concurrent connection management using WAL (Write-Ahead Logging) mode.
+* Zero-dependency embedded SQLite setup using Python's standard `sqlite3` module.
+* Safe connection lifecycle managed via FastAPI lifespan context with WAL (Write-Ahead Logging) mode enabled.
 * System metadata table (`system_meta`) recording database initialization timestamp and schema version.
 
 ### 2.4 Frontend Foundation (React 18, Vite, TypeScript, Tailwind CSS)
 * **Application Shell:** Responsive dark-mode cockpit layout with KAVACH top navigation bar, status indicators, and view switcher.
-* **View Hierarchy:** Skeleton views for the 5 target screens:
+* **View Hierarchy:** Skeleton views for the 5 official target screens:
   1. *Security Gateway* (Active functional foundation view).
   2. *Threat Analysis* (Visual placeholder with upcoming indicators).
   3. *Security Trace* (Visual placeholder with upcoming indicators).
   4. *Security Dashboard* (Visual placeholder with upcoming indicators).
   5. *Attack Lab* (Visual placeholder with upcoming indicators).
-* **Gateway View Components:** Text input area, character/token meter, "Scan & Secure" submission button, loading spinner, and responsive response panel.
+* **Gateway View Components:** Text input area, character/token meter, "Submit for Analysis" button, loading spinner, and responsive response panel.
 * **Client-Side State Management:** Typed React hooks managing form state, asynchronous API dispatch, loading states, and user-facing error boundaries.
 * **API Client Layer:** Axios or native `fetch` wrapper configured with base URLs, timeout policies, and standardized error normalization.
 
 ### 2.5 Containerization & Local Runtime
 * Multi-stage `backend/Dockerfile` using lightweight `python:3.11-slim`.
-* Multi-stage `frontend/Dockerfile` using Node build and Nginx/Vite preview.
+* Multi-stage `frontend/Dockerfile` using Node 20 build stage and production `nginx:alpine` serving stage.
 * Unified root `docker-compose.yml` linking frontend, backend, and persistent SQLite storage volume.
 
 ---
@@ -108,19 +111,19 @@ To guarantee rapid delivery and avoid premature architectural debt, the followin
 └────────────────────────────────────────────────────────────────────────┘
 
   1. Access Application
-     └─► User opens http://localhost:5173 (or containerized port 80).
+     └─► User opens http://localhost:5173 (development) or http://localhost:3000 (containerized Nginx).
      └─► React shell mounts; navigation bar displays "KAVACH [Gateway Active]".
      └─► Header checks backend `/health` probe; green connectivity beacon shines.
 
   2. Navigate Interface
-     └─► User sees navigation tabs: [Gateway], [Threat Analysis], [Trace], [Metrics], [Lab].
-     └─► Clicking [Gateway] shows the active Ingestion Panel.
+     └─► User sees navigation tabs: [Security Gateway], [Threat Analysis], [Security Trace], [Security Dashboard], [Attack Lab].
+     └─► Clicking [Security Gateway] shows the active Ingestion Panel.
      └─► Clicking other tabs displays clean "Phase 2/3 Feature" placeholders.
 
   3. Submit Sample Payload
      └─► User enters sample text into the direct text area (e.g., "Hello world test").
      └─► Real-time character counter updates (e.g., "16 / 32,000 chars").
-     └─► User clicks "Scan & Secure".
+     └─► User clicks "Submit for Analysis".
 
   4. Request Lifecycle & Validation
      └─► Frontend disables button and displays animated pulse loading state.
@@ -133,7 +136,7 @@ To guarantee rapid delivery and avoid premature architectural debt, the followin
          - Status: "ACCEPTED_FOR_ANALYSIS"
          - Message: "Foundation pipeline operational. Threat engine active in Phase 2."
          - Content length, timestamp, and echo verification.
-     └─► Frontend renders formatted status card with request latency.
+     └─► Frontend renders formatted status card with observed request latency.
      └─► (No false claims of maliciousness or security verdicts are displayed).
 ```
 
@@ -174,7 +177,7 @@ Phase 1 establishes a decoupled, three-tier architecture:
  │  └───────────────────────────────┬───────────────────────────────┘  │
  │                                  │                                  │
  │  ┌───────────────────────────────▼───────────────────────────────┐  │
- │  │             Database Manager (SQLite Connection Pool)         │  │
+ │  │             Database Manager (SQLite Connection / WAL)        │  │
  │  └───────────────────────────────┬───────────────────────────────┘  │
  └──────────────────────────────────┼──────────────────────────────────┘
                                     │ Local File I/O
@@ -461,16 +464,19 @@ Phase 1 establishes a comprehensive, centralized error-handling policy preventin
 ## 10. Database Foundation (SQLite)
 
 ### 10.1 Technology Justification: Why SQLite?
-* **Zero Operational Overhead:** SQLite requires no separate server process, container, or network port, drastically reducing moving parts during a time-constrained hackathon.
+* **Zero Operational Overhead:** SQLite requires no external server daemon, container, or network port, drastically reducing moving parts during a time-constrained hackathon.
 * **Deterministic Single-File State:** The entire database resides in a single file (`kavach.db`), enabling effortless backup, reset, and volume mounting inside Docker.
-* **Concurrency with WAL Mode:** By enabling `PRAGMA journal_mode=WAL;`, SQLite supports concurrent readers alongside a writer, easily handling KAVACH's expected throughput.
-* **Future Migration Path:** Using standard SQL data types and an ORM/query builder layer ensures that transitioning to PostgreSQL for multi-tenant production in the future requires only changing the database connection string.
+* **Concurrency with WAL Mode:** By enabling Write-Ahead Logging (`PRAGMA journal_mode=WAL;`), SQLite supports concurrent readers alongside a writer, easily handling KAVACH's expected throughput.
+* **Standard Driver Simplicity:** Standard Python `sqlite3` is chosen directly for Phase 1. No heavy ORM or connection pool is introduced, keeping the architecture lean and transparent.
+* **Future Migration Path:** Using standard SQL data types ensures that transitioning to SQLAlchemy/SQLModel or PostgreSQL in future phases requires only updating the data connector layer without altering domain models.
 
 ### 10.2 Initialization & Connection Management
-* **Location:** Local file at `backend/data/kavach.db` (persisted via Docker volume).
-* **Connection Lifecycle:** Managed via FastAPI lifespan events (`lifespan(app: FastAPI)`).
-  * *Startup:* Check file existence; execute `PRAGMA journal_mode=WAL;`; execute table creation scripts if not present; run `SELECT 1;` health probe.
-  * *Shutdown:* Close connection pools cleanly.
+* **Database File Location:** Local file at `backend/data/kavach.db` (persisted via Docker volume).
+* **Connection Lifecycle:** Managed cleanly via FastAPI lifespan context (`lifespan(app: FastAPI)`):
+  * *Startup:* Verify/create data directory; open SQLite connection with WAL mode enabled (`PRAGMA journal_mode=WAL;`); execute the idempotent `system_meta` table creation; verify connectivity via `SELECT 1;`.
+  * *Per-Request Access:* Standard SQLite connection or dependency generator providing deterministic query execution.
+  * *Shutdown:* Close database connection cleanly upon process termination.
+* **Testability:** In pytest suites, SQLite seamlessly supports in-memory execution (`:memory:`) or temporary test files, guaranteeing fast, isolated unit testing.
 
 ### 10.3 Phase 1 Database Schema
 Phase 1 intentionally avoids premature creation of complex attack or trace tables. It introduces only the baseline system metadata table:
@@ -569,40 +575,40 @@ While full threat detection is delivered in Phase 2, Phase 1 establishes the bas
 
 ### 13.2 View Architecture & Screen Layout
 ```text
-┌────────────────────────────────────────────────────────────────────────┐
-│ [🛡️ KAVACH]  AI Security Gateway              (●) Backend Operational │
-│ ────────────────────────────────────────────────────────────────────── │
-│ [Tab: Gateway]  [Tab: Threat Analysis*]  [Tab: Trace*]  [Tab: Lab*]   │
-└────────────────────────────────────────────────────────────────────────┘
-┌────────────────────────────────────────────────────────────────────────┐
-│  SECURITY GATEWAY — Direct Ingestion                                   │
-│  Inspect untrusted content before downstream agent execution.          │
-│                                                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ Enter content to analyze...                                      │  │
-│  │                                                                  │  │
-│  │                                                                  │  │
-│  │                                              [ 42 / 32,000 chars]│  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│  [  Scan & Secure Payload  ]                                           │
-└────────────────────────────────────────────────────────────────────────┘
-┌────────────────────────────────────────────────────────────────────────┐
-│  GATEWAY PREVIEW VERDICT                                               │
-│  Status: ACCEPTED_FOR_ANALYSIS               Latency: 18ms             │
-│  Notice: Phase 1 Foundation Active.                                    │
-│          Security detection engine attaches in Phase 2.                │
-└────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [🛡️ KAVACH]  AI Security Gateway                               (●) Backend Operational │
+│ ────────────────────────────────────────────────────────────────────────────────────── │
+│ [Security Gateway] [Threat Analysis*] [Security Trace*] [Security Dashboard*] [Lab*]   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│  SECURITY GATEWAY — Direct Ingestion                                                   │
+│  Inspect untrusted content before downstream agent execution.                          │
+│                                                                                        │
+│  ┌──────────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Enter content to analyze...                                                      │  │
+│  │                                                                                  │  │
+│  │                                                                                  │  │
+│  │                                                              [ 42 / 32,000 chars]│  │
+│  └──────────────────────────────────────────────────────────────────────────────────┘  │
+│  [  Submit for Analysis  ]                                                             │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│  GATEWAY PREVIEW VERDICT                                                               │
+│  Status: ACCEPTED_FOR_ANALYSIS               Latency: [Observed ms]                    │
+│  Notice: Phase 1 Foundation Active.                                                    │
+│          Security detection engine attaches in Phase 2.                                │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 13.3 Core Frontend Components
 1. **`Navbar` (`frontend/src/components/layout/Navbar.tsx`):**
-   * Displays KAVACH shield logo, version tag, active screen tabs, and live backend health heartbeat icon.
+   * Displays KAVACH shield logo, version tag, active screen tabs across all 5 official screens, and live backend health heartbeat icon.
 2. **`GatewayView` (`frontend/src/views/GatewayView.tsx`):**
-   * Contains the ingestion form, character counter, input clear action, and submit button.
+   * Contains the ingestion form, character counter, input clear action, and "Submit for Analysis" button.
 3. **`PlaceholderView` (`frontend/src/views/PlaceholderView.tsx`):**
-   * Renders informative, polished coming-soon states for Threat Analysis, Trace, Dashboard, and Lab.
+   * Renders informative, polished coming-soon states for Threat Analysis, Security Trace, Security Dashboard, and Attack Lab.
 4. **`ResponseCard` (`frontend/src/components/gateway/ResponseCard.tsx`):**
-   * Renders the structured response from `/api/v1/gateway/scan-preview` with syntax formatting and latency metric.
+   * Renders the structured response from `/api/v1/gateway/scan-preview` with syntax formatting and observed latency metric.
 5. **`AlertBanner` (`frontend/src/components/common/AlertBanner.tsx`):**
    * Displays dismissible network or validation error alerts.
 
@@ -689,7 +695,7 @@ Phase 1 requires a complete automated test suite verifying foundational behavior
 ### 15.2 Frontend Verification Tests
 1. **Component Mount Test:** Application renders without crashing; header, navigation, and input panel are present in the DOM.
 2. **Character Counter Test:** Typing in the input textarea updates the character counter dynamically.
-3. **Client-Side Validation Test:** "Scan & Secure" button is disabled when the input field is empty.
+3. **Client-Side Validation Test:** "Submit for Analysis" button is disabled when the input field is empty.
 4. **API Integration Test:** Mocking the API response verifies that the loading spinner appears during transit and the result card renders upon resolution.
 5. **API Disconnection Test:** Mocking a network failure verifies that the alert banner displays an appropriate error message without crashing the UI.
 
@@ -707,10 +713,11 @@ Phase 1 requires a complete automated test suite verifying foundational behavior
 * Non-root user execution (`appuser`) for least-privilege security.
 * Exposed Port: `8000`.
 
-### 16.2 Frontend `Dockerfile` Strategy
-* Build Stage: `node:20-alpine` runs `npm run build`.
-* Production Stage: Lightweight `nginx:alpine` serving static assets with reverse-proxy rules routing `/api/` to the backend, OR a lightweight Vite preview container.
-* Exposed Port: `5173` (or `80` in production mode).
+### 16.2 Frontend `Dockerfile` Strategy (Nginx Serving)
+* **Build Stage:** `node:20-alpine` runs `npm run build` to compile the TypeScript/React application into static distribution assets located in `/app/dist`.
+* **Production Serving Stage:** Lightweight `nginx:alpine` serves static assets directly from `/usr/share/nginx/html`.
+* **Routing Configuration:** Custom `nginx.conf` includes single-page application fallback directive (`try_files $uri $uri/ /index.html;`) ensuring client-side routes resolve reliably.
+* **Container Port:** `80` inside the container, mapped to host port `3000` in Docker Compose.
 
 ### 16.3 Root `docker-compose.yml`
 ```yaml
@@ -742,7 +749,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
+      - "3000:80"
     environment:
       - VITE_API_BASE_URL=http://localhost:8000
     depends_on:
@@ -762,10 +769,10 @@ To transition Phase 1 from implementation to verification during Stage 2, all 10
 * [ ] **AC-04 (System Metadata):** `GET /api/v1/system/info` returns HTTP 200 detailing current phase and feature flags.
 * [ ] **AC-05 (Scan Preview API):** `POST /api/v1/gateway/scan-preview` accepts valid text payloads, validates boundaries, and returns HTTP 200 with metrics.
 * [ ] **AC-06 (Strict Validation & Safe Errors):** Malformed JSON, empty strings, and oversized payloads return clean HTTP 400/422 JSON errors; no stack traces are leaked.
-* [ ] **AC-07 (Frontend Execution):** React + Vite application builds cleanly, starts on port 5173, and renders the KAVACH branded dark cockpit.
+* [ ] **AC-07 (Frontend Execution):** React + Vite application builds cleanly, runs in development on port 5173 (and via containerized Nginx on port 3000), and renders the KAVACH branded dark cockpit.
 * [ ] **AC-08 (Client-Server Integration):** Frontend Security Gateway screen successfully transmits user input to backend scan preview and renders the resulting metrics.
-* [ ] **AC-09 (Zero Security Misrepresentation):** Neither the UI nor the API claims that prompt injection detection or threat classification is active.
-* [ ] **AC-10 (Docker Compose Startup):** `docker compose up --build` launches both services cleanly, passes health checks, and enables full application functionality.
+* [ ] **AC-09 (Zero Security Misrepresentation):** Neither the UI nor the API claims that prompt injection detection or threat classification is active ("Submit for Analysis" communicates validation only).
+* [ ] **AC-10 (Docker Compose Startup):** `docker compose up --build` launches both backend and Nginx-served frontend cleanly, passes health checks, and enables full application functionality.
 
 ---
 
@@ -921,12 +928,12 @@ frontend/
 | Requirement Ref | Requirement Description | Phase 1 Component | Acceptance Criterion |
 | :--- | :--- | :--- | :---: |
 | **FR-1.1** | Direct text ingestion up to 32,000 chars | `ScanPreviewRequest` schema, `IngestionForm.tsx` | **AC-05, AC-06** |
-| **NFR-1** | Baseline API latency < 50ms | FastAPI asynchronous endpoints | **AC-03, AC-05** |
+| **NFR-1** | API request latency must be measured during Phase 1 testing and recorded as an observed metric. No performance SLA is claimed at this stage. | FastAPI asynchronous endpoints & client logging | **AC-03, AC-05** |
 | **NFR-2** | Centralized safe error handling | `exceptions.py`, global exception handlers | **AC-06** |
-| **NFR-4** | Deterministic containerization | `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml` | **AC-10** |
+| **NFR-4** | Deterministic containerization (FastAPI + Nginx) | `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml` | **AC-10** |
 | **FR-5.1** | Security Gateway screen layout | `GatewayView.tsx`, `Navbar.tsx` | **AC-07, AC-08** |
 | **SEC-1** | Secret management & hygiene | `.env.example`, `.gitignore`, `pydantic-settings` | **AC-01** |
-| **DB-1** | SQLite thread-safe connection | `session.py`, `init_db.py` (WAL Mode) | **AC-03** |
+| **DB-1** | SQLite connection lifecycle with WAL mode | `session.py`, `init_db.py` (sqlite3, WAL) | **AC-03** |
 
 ---
 
