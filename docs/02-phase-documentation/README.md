@@ -35,7 +35,7 @@ KAVACH is architected and built in **five sequential phases**. Each phase must h
 
 | Phase | Title | Specification File | Specification Status | Implementation Status | Goal |
 | :---: | :--- | :--- | :---: | :---: | :--- |
-| **1** | **Foundation** | [phase-1.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-1.md) | `NOT STARTED` | `NOT STARTED` | Repo skeleton, FastAPI backend, React base UI, health API, Docker foundation |
+| **1** | **Foundation** | [phase-1.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-1.md) | `UNDER REVIEW` | `NOT STARTED` | Repo skeleton, FastAPI backend, React base UI, health API, Docker foundation |
 | **2** | **Security Engine** | [phase-2.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-2.md) | `NOT STARTED` | `NOT STARTED` | Rule engine, AI analyzer, 7 attack categories, risk engine, policy enforcement |
 | **3** | **Product Experience** | [phase-3.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-3.md) | `NOT STARTED` | `NOT STARTED` | PDF/URL ingestion, Threat Analysis, Security Trace, Dashboard, Attack Lab |
 | **4** | **Validation & Deployment** | [phase-4.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-4.md) | `NOT STARTED` | `NOT STARTED` | Adversarial corpus, false-positive tests, failure handling, Docker Compose, Swagger |
@@ -45,11 +45,13 @@ KAVACH is architected and built in **five sequential phases**. Each phase must h
 
 ## 3. Immediate Next Milestone
 
-The immediate next milestone is:
-👉 **Drafting `phase-1.md` (Phase 1 Specification: Foundation)**.
+The current active document is:
+👉 **`docs/02-phase-documentation/phase-1.md` (Phase 1 Specification: Foundation)** — currently **`UNDER REVIEW`**.
 
 Per project governance rules:
-* We are currently in the **DOCUMENTATION INITIALIZATION STAGE**.
-* No implementation code may be written.
-* Antigravity will author `docs/02-phase-documentation/phase-1.md` only upon receiving the explicit instruction:
-  > **`CREATE PHASE 1 DOCUMENTATION`**
+* We are in **STAGE 1 — DOCUMENTATION GATES**.
+* Phase 1 is submitted to ChatGPT / User for formal architectural review.
+* Revisions will be applied if requested.
+* Once approved, Phase 1 will transition to **`FROZEN`**.
+* Following freezing, drafting will begin for **Phase 2 (Security Engine)**.
+* No implementation code may be written until all 5 phase documents are frozen.
