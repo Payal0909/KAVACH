@@ -17,7 +17,7 @@
 | **System Requirements** | [requirements.md](file:///d:/KAVACH/docs/01-product-specification/requirements.md) | `DRAFT` | 2026-09-29 | Inputs, detection, policy, audit, latency |
 | **Product Scope** | [product-scope.md](file:///d:/KAVACH/docs/01-product-specification/product-scope.md) | `DRAFT` | 2026-09-29 | F3 & D2 boundaries, in/out-of-scope |
 | **Phase 1 Specification** | [phase-1.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-1.md) | `FROZEN` 🔒 | 2026-09-29 | Architectural review complete; specification frozen |
-| **Phase 2 Specification** | [phase-2.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-2.md) | `NOT STARTED` | — | Blocked by Phase 1 freezing |
+| **Phase 2 Specification** | [phase-2.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-2.md) | `UNDER REVIEW` | 2026-09-29 | Security Engine specification authored; under review |
 | **Phase 3 Specification** | [phase-3.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-3.md) | `NOT STARTED` | — | Blocked by Phase 2 freezing |
 | **Phase 4 Specification** | [phase-4.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-4.md) | `NOT STARTED` | — | Blocked by Phase 3 freezing |
 | **Phase 5 Specification** | [phase-5.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-5.md) | `NOT STARTED` | — | Blocked by Phase 4 freezing |
@@ -42,7 +42,7 @@ docs/
 ├── 02-phase-documentation/          # Sequential execution blueprints
 │   ├── README.md                    # Roadmap across Phase 1 to Phase 5
 │   ├── phase-1.md                   # Foundation (Skeleton, API, Health, Base UI, Docker) [FROZEN 🔒]
-│   ├── phase-2.md                   # Security Engine (Hybrid Detection, Risk, Policy) [Pending]
+│   ├── phase-2.md                   # Security Engine (Hybrid Detection, Risk, Policy) [UNDER REVIEW]
 │   ├── phase-3.md                   # Product Experience (PDF/URL Ingestion, Trace, Lab) [Pending]
 │   ├── phase-4.md                   # Validation & Deployment (Corpus, Benchmarks, CI/CD) [Pending]
 │   └── phase-5.md                   # Submission & Productization (Pitch, Video, Demos) [Pending]
@@ -62,4 +62,5 @@ docs/
 ## 3. Immediate Next Milestone
 
 * **Phase 1 (Foundation):** **`FROZEN` 🔒**
-* **Next Active Milestone:** **Drafting `docs/02-phase-documentation/phase-2.md` (Phase 2 Specification: Security Engine)** upon user instruction (`CREATE PHASE 2 DOCUMENTATION`).
+* **Current Active Milestone:** **Reviewing `docs/02-phase-documentation/phase-2.md` (Phase 2 Specification: Security Engine)**.
+* **Status:** **`UNDER REVIEW`** (Awaiting ChatGPT / User architectural review before freezing).
