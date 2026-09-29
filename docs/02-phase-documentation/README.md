@@ -33,6 +33,14 @@ KAVACH is architected and built in **five sequential phases**. Each phase must h
 
 ## 2. Phase Directory & Status Board
 
+```text
+Phase 1 — FROZEN
+Phase 2 — UNDER REVIEW
+Phase 3 — NOT STARTED
+Phase 4 — NOT STARTED
+Phase 5 — NOT STARTED
+```
+
 | Phase | Title | Specification File | Specification Status | Implementation Status | Goal |
 | :---: | :--- | :--- | :---: | :---: | :--- |
 | **1** | **Foundation** | [phase-1.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-1.md) | `FROZEN` 🔒 | `NOT STARTED` | Repo skeleton, FastAPI backend, React base UI, health API, Docker foundation |
