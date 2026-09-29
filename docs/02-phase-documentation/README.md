@@ -35,7 +35,7 @@ KAVACH is architected and built in **five sequential phases**. Each phase must h
 
 | Phase | Title | Specification File | Specification Status | Implementation Status | Goal |
 | :---: | :--- | :--- | :---: | :---: | :--- |
-| **1** | **Foundation** | [phase-1.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-1.md) | `UNDER REVIEW` | `NOT STARTED` | Repo skeleton, FastAPI backend, React base UI, health API, Docker foundation |
+| **1** | **Foundation** | [phase-1.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-1.md) | `FROZEN` 🔒 | `NOT STARTED` | Repo skeleton, FastAPI backend, React base UI, health API, Docker foundation |
 | **2** | **Security Engine** | [phase-2.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-2.md) | `NOT STARTED` | `NOT STARTED` | Rule engine, AI analyzer, 7 attack categories, risk engine, policy enforcement |
 | **3** | **Product Experience** | [phase-3.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-3.md) | `NOT STARTED` | `NOT STARTED` | PDF/URL ingestion, Threat Analysis, Security Trace, Dashboard, Attack Lab |
 | **4** | **Validation & Deployment** | [phase-4.md](file:///d:/KAVACH/docs/02-phase-documentation/phase-4.md) | `NOT STARTED` | `NOT STARTED` | Adversarial corpus, false-positive tests, failure handling, Docker Compose, Swagger |
@@ -45,13 +45,10 @@ KAVACH is architected and built in **five sequential phases**. Each phase must h
 
 ## 3. Immediate Next Milestone
 
-The current active document is:
-👉 **`docs/02-phase-documentation/phase-1.md` (Phase 1 Specification: Foundation)** — currently **`UNDER REVIEW`**.
+* **Phase 1 (Foundation):** **`FROZEN` 🔒** (Completed architectural review).
+* **Next Active Milestone:** **Drafting `docs/02-phase-documentation/phase-2.md` (Phase 2 Specification: Security Engine)**.
 
 Per project governance rules:
-* We are in **STAGE 1 — DOCUMENTATION GATES**.
-* Phase 1 is submitted to ChatGPT / User for formal architectural review.
-* Revisions will be applied if requested.
-* Once approved, Phase 1 will transition to **`FROZEN`**.
-* Following freezing, drafting will begin for **Phase 2 (Security Engine)**.
+* We remain in **STAGE 1 — DOCUMENTATION GATES**.
+* Phase 2 specification drafting will commence only upon receiving explicit user instruction (`CREATE PHASE 2 DOCUMENTATION`).
 * No implementation code may be written until all 5 phase documents are frozen.

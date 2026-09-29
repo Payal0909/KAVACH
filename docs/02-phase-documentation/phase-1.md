@@ -7,7 +7,7 @@
 * **Project:** KAVACH
 * **Phase:** Phase 1 — Foundation
 * **Document:** Phase 1 Technical & Implementation Specification
-* **Status:** `UNDER REVIEW`
+* **Status:** `FROZEN`
 * **Version:** 1.0
 * **Date:** 2026-09-29
 * **Document Owner:** Antigravity (Engineering Workspace)
@@ -16,8 +16,8 @@
 ---
 
 > [!IMPORTANT]
-> **GOVERNANCE STATUS: UNDER REVIEW**  
-> This specification represents a proposed engineering baseline for Phase 1. It is **NOT FROZEN** and **NOT APPROVED** for implementation. In accordance with the [Documentation-First Workflow](file:///d:/KAVACH/docs/00-project/documentation-workflow.md), no application code, dependencies, or components may be written until this specification has been formally reviewed, revised if necessary, and explicitly frozen.
+> **GOVERNANCE STATUS: 🔒 FROZEN**  
+> This Phase 1 specification has been reviewed and approved by the project owner and architectural reviewer. The Phase 1 documentation is now FROZEN. No changes to Phase 1 scope, architecture, requirements, APIs, acceptance criteria, or Definition of Done may be made without an explicit change-control decision.
 
 ---
 
@@ -937,14 +937,10 @@ frontend/
 
 ---
 
-## 24. Change Control & Review Gate
+## 24. Change Control & Governance State
 
 ```text
-Status: UNDER REVIEW
+Status: FROZEN 🔒
 
-This document is NOT FROZEN.
-
-Changes, enhancements, or clarifications may be requested during ChatGPT / User review.
-
-The document must NOT be marked FROZEN until explicitly approved by the project architect.
+This Phase 1 specification has been reviewed and approved by the project owner and architectural reviewer. The Phase 1 documentation is now FROZEN. No changes to Phase 1 scope, architecture, requirements, APIs, acceptance criteria, or Definition of Done may be made without an explicit change-control decision.
 ```
